@@ -8,7 +8,7 @@ setup(
   author = 'Jakub Korsak',
   author_email = 'jakub.korsak@protonmail.com',
   url = 'https://github.com/korsakjakub/qworder',
-  download_url = 'https://github.com/user/reponame/archive/v_01.tar.gz',
+  download_url = 'https://github.com/korsakjakub/QWorder/archive/refs/tags/0.1.tar.gz',
   keywords = ['QUANTUM', 'COMPUTING', 'GATESTRINGS', 'SIMPLIFIER', 'PAULI', 'MATRIX', 'HADAMARD'],
   install_requires=[
           'csv',
