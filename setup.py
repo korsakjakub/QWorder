@@ -1,9 +1,9 @@
 from distutils.core import setup
 setup(
   name = 'qworder',
-  packages = ['QWORDER'],   # Chose the same as "name"
+  packages = ['qworder'],   # Chose the same as "name"
   version = '0.1',
-  license='GPL3.0',
+  license='gpl-3.0',
   description = 'QWorder simplifies strings representing sequences of quantum gates',
   author = 'Jakub Korsak',
   author_email = 'jakub.korsak@protonmail.com',
@@ -20,8 +20,10 @@ setup(
     'Development Status :: 3 - Alpha',      # Chose either "3 - Alpha", "4 - Beta" or "5 - Production/Stable" as the current state of your package
     'Intended Audience :: Developers',
     'Topic :: Software Development :: Build Tools',
-    'License :: OSI Approved :: GNU GENERAL PUBLIC LICENSE',   # Again, pick a license
+    'License :: OSI Approved :: GNU General Public License',   # Again, pick a license
     'Programming Language :: Python :: 3',
+    'Programming Language :: Python :: 3.7',
+    'Programming Language :: Python :: 3.8',
     'Programming Language :: Python :: 3.9',
   ],
 )
