@@ -1,83 +1,82 @@
 # Cascader class reduces sequences of quantum gates for given gate-set and generates
 # a multiplication table of all possible reductions
-import csv
-import os
+import timeit
 
 import numpy as np
-from typing import Dict
+import time
 
-from qworder import config
-from qworder.word_generator import WordGenerator
+from qworder.rules import Rules, Word
 
 
 class Cascader(object):
     base_gates = {
-        'H': np.array([[0, 0, 1], [0, -1, 0], [1, 0, 0]]),
+        'I': np.array(
+            [[1, 0, 0], [0, 1, 0], [0, 0, 1]]),
         'X': np.array([[1, 0, 0], [0, -1, 0], [0, 0, -1]]),
         'Y': np.array([[-1, 0, 0], [0, 1, 0], [0, 0, -1]]),
         'Z': np.array([[-1, 0, 0], [0, -1, 0], [0, 0, 1]]),
+        'H': np.array([[0, 0, 1], [0, -1, 0], [1, 0, 0]]),
         'T': np.array(
             [[np.cos(np.pi / 4), -np.sin(np.pi / 4), 0], [np.sin(np.pi / 4), np.cos(np.pi / 4), 0], [0, 0, 1]]),
         'R': np.array(
-            [[np.cos(np.pi / 4), np.sin(np.pi / 4), 0], [- np.sin(np.pi / 4), np.cos(np.pi / 4), 0], [0, 0, 1]]),
-        'I': np.array(
-            [[0, 0, 0], [0, 0, 0], [0, 0, 0]],
-        )
+            [[np.cos(np.pi / 4), np.sin(np.pi / 4), 0], [- np.sin(np.pi / 4), np.cos(np.pi / 4), 0], [0, 0, 1]])
     }
 
-    def __init__(self, wg: WordGenerator, rules_path: str = ""):
-        self._rules_path = rules_path if rules_path else config.PATH
-        self._wg = wg
-        self._gateset = self._wg.input_set
-        self.rules = self._load_existing_rules()
+    def __init__(self, rules_path: str = ""):
+        if len(rules_path):
+            self.rules = Rules(rules_path)
+        else:
+            self.rules = Rules()
 
-    def _load_existing_rules(self):
-        rules = {}
-        if os.path.isfile(self._rules_path):
-            with open(self._rules_path) as csv_file:
-                csv_reader = csv.reader(csv_file, delimiter=',')
-                for row in csv_reader:
-                    rules[row[0]] = row[1]
-        return rules
+    def cascade_word(self, word: Word) -> Word:
+        index = 0
+        while index < len(word.word) - 1 and len(word.word) > 1:
+            sub = word.word[index: index + 2]
+            replacement = self._check_replace(sub)
+            if replacement and replacement[0] != sub:
+                word.replace(sub, replacement)
+                index = max(0, index - 1)
+            else:
+                sub = word.word[index: index + 3]
+                replacement = self._check_replace(sub)
+                if replacement and replacement[0] != sub:
+                    word.replace(sub, replacement)
+                    index = max(0, index - 1)
+                else:
+                    index += 1
 
-    def cascade(self) -> Dict[int, list]:
-        words = self._wg.get_words_dictionary()
-        for length in words:
-            # for word in words[length]:
-            for k in range(len(words[length])):
-                word = words[length][k]
-                for i in range(len(word) - 1):
-                    sub = word[i] + word[i + 1]
-                    if sub in self.rules:
-                        words[length][k] = word.replace(sub, self.rules[sub])
-                        continue
-                    replacement = self._check_product(word[i], word[i + 1])
-                    if replacement:
-                        word = word.replace(sub, replacement)
-                        self.rules[sub] = replacement
-                    else:
-                        self.rules[sub] = sub
-            words[length] = list(np.unique(words[length]))
-        self._write_rules()
-        return words
+        self.rules.write_rules()
+        return word
 
-    def _check_product(self, a: str, b: str) -> str:
-        if not len(self.base_gates[a]) or not len(self.base_gates[b]):
-            return ""
+    def _check_replace(self, sub):
+        if sub in self.rules and sub != self.rules[sub]:
+            return self.rules[sub]
+        replacement = self._check_product(sub)
+        if replacement.word:
+            self.rules[sub] = replacement
+            return replacement
+        else:
+            self.rules[sub] = Word(sub, True)
+            return False
+
+    def _check_product(self, prod: str) -> Word:
+        g = [self.base_gates[p] for p in prod]
         for letter in self.base_gates:
-            bprod = np.matmul(self.base_gates[a], self.base_gates[b])
+            temp = g[0]
+            for i in range(1, len(g)):
+                temp = np.matmul(temp, g[i])
             bg = self.base_gates[letter]
-            if np.allclose(bprod, bg):
-                return letter
-        return ""
-
-    def _write_rules(self):
-        output_file = open(self._rules_path, "w")
-        for rule in self.rules:
-            output_file.write(rule + "," + self.rules[rule] + "\n")
-        output_file.close()
+            if np.allclose(temp, bg):
+                return Word(letter, True)
+            elif np.allclose(temp, -bg):
+                return Word(letter, False)
+        return Word("", False)
 
 
 if __name__ == '__main__':
-    cascader = Cascader(WordGenerator(['H', 'T', 'R', 'X', 'Y', 'Z', 'I'], 3))
-    print(cascader.cascade())
+    start_time = time.time()
+    w = Word("HXYYXZXH", True)
+    c = Cascader()
+    print(w)
+    print(c.cascade_word(w))
+    print("--- %s seconds ---" % (time.time() - start_time))

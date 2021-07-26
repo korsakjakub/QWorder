@@ -1,4 +1,5 @@
 # Generate all possible words of given length
+from typing import Dict, List
 
 
 class WordGenerator:
@@ -21,7 +22,7 @@ class WordGenerator:
         for i in range(len(self.input_set)):
             self.__generate_words_rec(word + self.input_set[i], length - 1)
 
-    def generate_words_shorter_than(self) -> list[str]:
+    def generate_words_shorter_than(self) -> List[str]:
         for i in range(self.length):
             self.__generate_words_rec("", i + 1)
             self._remove_unnecessary(i + 1)
@@ -35,7 +36,7 @@ class WordGenerator:
         for letter in self.input_set:
             self.output.remove(letter * length)
 
-    def get_words_dictionary(self) -> dict[int, list]:
+    def get_words_dictionary(self) -> Dict[int, list]:
         words = {}
         length = self.length
         for k in range(1, length + 1):
