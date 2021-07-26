@@ -11,10 +11,7 @@ setup(
   download_url = 'https://github.com/korsakjakub/QWorder/archive/refs/tags/0.1.tar.gz',
   keywords = ['QUANTUM', 'COMPUTING', 'GATESTRINGS', 'SIMPLIFIER', 'PAULI', 'MATRIX', 'HADAMARD'],
   install_requires=[
-          'csv',
-          'os',
           'numpy',
-          'typing',
       ],
   classifiers=[
     'Development Status :: 3 - Alpha',      # Chose either "3 - Alpha", "4 - Beta" or "5 - Production/Stable" as the current state of your package
