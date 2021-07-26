@@ -1,7 +1,7 @@
 # QWorder
 QWorder simplifies strings representing sequences of quantum gates.
 
-# Instalation
+# Installation
 
 `pip install qworder`
 
