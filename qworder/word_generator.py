@@ -1,23 +1,26 @@
 # Generate all possible words of given length
 from typing import Dict, List
+from qworder.rules import Word
+from qworder.cascading_rules import Cascader
 
 
 class WordGenerator:
 
-    def __init__(self, input_set: list, length: int):
+    def __init__(self, input_set: list, length: int, cascader: Cascader = None):
         self.output = []
         self.input_set = input_set
         self.length = length
+        if cascader:
+            self.cascader = cascader
 
     def generate_words(self) -> list:
         print("Generating words for length " + str(self.length))
         self.__generate_words_rec("", self.length)
-        self._remove_unnecessary(self.length)
         return self.output
 
     def __generate_words_rec(self, word: str, length: int) -> None:
         if length == 0:
-            self.output.append(word)
+            self.output.append(self.cascader.cascade_word(Word(word, True).word))
             return
         for i in range(len(self.input_set)):
             self.__generate_words_rec(word + self.input_set[i], length - 1)

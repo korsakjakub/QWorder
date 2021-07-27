@@ -1,9 +1,9 @@
 # Cascader class reduces sequences of quantum gates for given gate-set and generates
 # a multiplication table of all possible reductions
-import timeit
+
+import time
 
 import numpy as np
-import time
 
 from qworder.rules import Rules, Word
 
@@ -44,8 +44,6 @@ class Cascader(object):
                     index = max(0, index - 1)
                 else:
                     index += 1
-
-        self.rules.write_rules()
         return word
 
     def _check_replace(self, sub):
@@ -79,4 +77,5 @@ if __name__ == '__main__':
     c = Cascader()
     print(w)
     print(c.cascade_word(w))
+    c.rules.write_rules()
     print("--- %s seconds ---" % (time.time() - start_time))
