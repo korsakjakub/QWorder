@@ -20,7 +20,10 @@ class WordGenerator:
 
     def __generate_words_rec(self, word: str, length: int) -> None:
         if length == 0:
-            self.output.append(self.cascader.cascade_word(Word(word, True).word))
+            if self.cascader:
+                self.output.append(self.cascader.cascade_word(Word(word, True)).word)
+            else:
+                self.output.append(word)
             return
         for i in range(len(self.input_set)):
             self.__generate_words_rec(word + self.input_set[i], length - 1)
@@ -47,3 +50,8 @@ class WordGenerator:
             words[k] = self.generate_words()
             self.output = []
         return words
+
+
+if __name__ == '__main__':
+    w = WordGenerator(['a', 'b', 'c'], 4, cascader=Cascader())
+    print(w.generate_words())
