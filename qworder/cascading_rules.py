@@ -5,7 +5,7 @@ import time
 
 import numpy as np
 
-from qworder.rules import Rules, Word
+from qworder.rules import Rules
 
 
 class Cascader(object):
@@ -28,36 +28,52 @@ class Cascader(object):
         else:
             self.rules = Rules()
 
-    def cascade_word(self, word: Word) -> Word:
+    def cascade_word(self, word: str) -> str:
         index = 0
-        while index < len(word.word) - 1 and len(word.word) > 1:
-            sub = word.word[index: index + 2]
+        while index < len(word) - 1 and len(word) > 1:
+            sub = word[index: index + 2]
             replacement = self._check_replace(sub)
             if replacement and replacement[0] != sub:
-                word.replace(sub, replacement)
+                word = word.replace(sub, replacement)
                 index = max(0, index - 1)
             else:
-                sub = word.word[index: index + 3]
+                sub = word[index: index + 3]
                 replacement = self._check_replace(sub)
                 if replacement and replacement[0] != sub:
-                    word.replace(sub, replacement)
+                    word = word.replace(sub, replacement)
                     index = max(0, index - 1)
                 else:
                     index += 1
         return word
 
+    def is_cascadable(self, word: str) -> bool:
+        index = 0
+        while index < len(word) - 1 and len(word) > 1:
+            sub = word[index: index + 2]
+            replacement = self._check_replace(sub)
+            if replacement and replacement[0] != sub:
+                return True
+            else:
+                sub = word[index: index + 3]
+                replacement = self._check_replace(sub)
+                if replacement and replacement[0] != sub:
+                    return True
+                else:
+                    index += 1
+        return False
+
     def _check_replace(self, sub):
         if sub in self.rules and sub != self.rules[sub]:
             return self.rules[sub]
         replacement = self._check_product(sub)
-        if replacement.word:
+        if replacement:
             self.rules[sub] = replacement
             return replacement
         else:
-            self.rules[sub] = Word(sub, True)
+            self.rules[sub] = sub
             return False
 
-    def _check_product(self, prod: str) -> Word:
+    def _check_product(self, prod: str) -> str:
         g = [self.base_gates[p] for p in prod]
         for letter in self.base_gates:
             temp = g[0]
@@ -65,17 +81,16 @@ class Cascader(object):
                 temp = np.matmul(temp, g[i])
             bg = self.base_gates[letter]
             if np.allclose(temp, bg):
-                return Word(letter, True)
-            elif np.allclose(temp, -bg):
-                return Word(letter, False)
-        return Word("", False)
+                return letter
+        return ""
 
 
 if __name__ == '__main__':
     start_time = time.time()
-    w = Word("HXYYXZXH", True)
+    w = "HXYYXZXH"
     c = Cascader()
     print(w)
     print(c.cascade_word(w))
+    print(c.is_cascadable(w))
     c.rules.write_rules()
     print("--- %s seconds ---" % (time.time() - start_time))

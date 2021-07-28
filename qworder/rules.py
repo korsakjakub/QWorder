@@ -19,13 +19,13 @@ class Rules(dict):
             with open(self._rules_path) as csv_file:
                 csv_reader = csv.reader(csv_file, delimiter=',')
                 for row in csv_reader:
-                    rules[row[0]] = [row[1], bool(row[2])]
+                    rules[row[0]] = row[1]
         return rules
 
     def write_rules(self):
         output_file = open(self._rules_path, "w")
         for rule in self:
-            output_file.write(rule + "," + self[rule][0] + "," + str(self[rule][1]) + "\n")
+            output_file.write(rule + "," + self[rule] + "\n")
         output_file.close()
 
 

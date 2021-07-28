@@ -2,13 +2,13 @@ from distutils.core import setup
 setup(
   name = 'qworder',
   packages = ['qworder'],   # Chose the same as "name"
-  version = '0.3',
+  version = '0.4',
   license='gpl-3.0',
   description = 'QWorder simplifies strings representing sequences of quantum gates',
   author = 'Jakub Korsak',
   author_email = 'jakub.korsak@protonmail.com',
   url = 'https://github.com/korsakjakub/qworder',
-  download_url = 'https://github.com/korsakjakub/QWorder/archive/refs/tags/0.1.tar.gz',
+  download_url = 'https://github.com/korsakjakub/QWorder/archive/refs/tags/0.4.tar.gz',
   keywords = ['QUANTUM', 'COMPUTING', 'GATESTRINGS', 'SIMPLIFIER', 'PAULI', 'MATRIX', 'HADAMARD'],
   install_requires=[
           'numpy',

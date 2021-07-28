@@ -1,6 +1,10 @@
 # Generate all possible words of given length
+import sys
+import time
 from typing import Dict, List
-from qworder.rules import Word
+
+from tqdm import tqdm
+
 from qworder.cascading_rules import Cascader
 
 
@@ -10,27 +14,37 @@ class WordGenerator:
         self.output = []
         self.input_set = input_set
         self.length = length
-        if cascader:
-            self.cascader = cascader
+        self.cascader = cascader if cascader else None
+        self.pbar = tqdm()
 
     def generate_words(self) -> list:
-        print("Generating words for length " + str(self.length))
-        self.__generate_words_rec("", self.length)
+        if self.cascader:
+            self._generate_words_rec_c("", self.length)
+        else:
+            self._generate_words_rec("", self.length)
+
         return self.output
 
-    def __generate_words_rec(self, word: str, length: int) -> None:
+    def _generate_words_rec_c(self, word: str, length: int) -> None:
+        self.pbar.update(1)
         if length == 0:
-            if self.cascader:
-                self.output.append(self.cascader.cascade_word(Word(word, True)).word)
-            else:
+            if not self.cascader.is_cascadable(word):
                 self.output.append(word)
             return
         for i in range(len(self.input_set)):
-            self.__generate_words_rec(word + self.input_set[i], length - 1)
+            self._generate_words_rec_c(word + self.input_set[i], length - 1)
+
+    def _generate_words_rec(self, word: str, length: int) -> None:
+        self.pbar.update(1)
+        if length == 0:
+            self.output.append(word)
+            return
+        for i in range(len(self.input_set)):
+            self._generate_words_rec(word + self.input_set[i], length - 1)
 
     def generate_words_shorter_than(self) -> List[str]:
         for i in range(self.length):
-            self.__generate_words_rec("", i + 1)
+            self._generate_words_rec("", i + 1)
             self._remove_unnecessary(i + 1)
         return self.output
 
@@ -53,5 +67,15 @@ class WordGenerator:
 
 
 if __name__ == '__main__':
-    w = WordGenerator(['a', 'b', 'c'], 4, cascader=Cascader())
-    print(w.generate_words())
+    start_time = time.time()
+    c = Cascader()
+    w = WordGenerator(['H', 'T', 'R', 'I', 'X', 'Y', 'Z'], 7, cascader=c)
+    words = w.generate_words()
+    print(len(words))
+    c.rules.write_rules()
+    print("--- %s seconds ---" % (time.time() - start_time))
+    print("with truncating:\t" + str(sys.getsizeof(words)/1000.0))
+
+    w = WordGenerator(['H', 'T', 'R', 'I', 'X', 'Y', 'Z'], 7)
+    words = w.generate_words()
+    print("without truncating:\t" + str(sys.getsizeof(words)/1000.0))
