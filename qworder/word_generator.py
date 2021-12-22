@@ -5,7 +5,7 @@ from typing import Dict, List
 
 from tqdm import tqdm
 
-from qworder.cascading_rules import Cascader
+from cascading_rules import Cascader
 
 
 class WordGenerator:
@@ -64,6 +64,13 @@ class WordGenerator:
             words[k] = self.generate_words()
             self.output = []
         return words
+
+    def add_layer(self, words: List[str]) -> List[str]:
+        output = []
+        for word in words:
+            for g in self.input_set:
+                output.append(word + g)
+        return output
 
 
 if __name__ == '__main__':

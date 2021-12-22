@@ -1,7 +1,7 @@
 import csv
 import os
 
-from qworder import config
+import config
 
 
 class Rules(dict):

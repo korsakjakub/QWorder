@@ -5,7 +5,7 @@ import time
 
 import numpy as np
 
-from qworder.rules import Rules
+from rules import Rules
 
 
 class Cascader(object):
