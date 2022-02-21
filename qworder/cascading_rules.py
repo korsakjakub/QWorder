@@ -19,7 +19,8 @@ class Cascader(object):
         'T': np.array(
             [[np.cos(np.pi / 4), -np.sin(np.pi / 4), 0], [np.sin(np.pi / 4), np.cos(np.pi / 4), 0], [0, 0, 1]]),
         'R': np.array(
-            [[np.cos(np.pi / 4), np.sin(np.pi / 4), 0], [- np.sin(np.pi / 4), np.cos(np.pi / 4), 0], [0, 0, 1]])
+            [[np.cos(np.pi / 4), np.sin(np.pi / 4), 0], [- np.sin(np.pi / 4), np.cos(np.pi / 4), 0], [0, 0, 1]]),
+        'S': np.array([[0, -1, 0], [1, 0, 0], [0, 0, 1]])
     }
 
     def __init__(self, rules_path: str = ""):

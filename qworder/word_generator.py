@@ -5,7 +5,11 @@ from typing import Dict, List
 
 from tqdm import tqdm
 
-from cascading_rules import Cascader
+from qworder.cascading_rules import Cascader
+import numpy as np
+
+import multiprocessing
+from itertools import product, chain
 
 
 class WordGenerator:
@@ -16,37 +20,6 @@ class WordGenerator:
         self.length = length
         self.cascader = cascader if cascader else None
         self.pbar = tqdm()
-
-    def generate_words(self) -> list:
-        if self.cascader:
-            self._generate_words_rec_c("", self.length)
-        else:
-            self._generate_words_rec("", self.length)
-
-        return self.output
-
-    def _generate_words_rec_c(self, word: str, length: int) -> None:
-        self.pbar.update(1)
-        if length == 0:
-            if not self.cascader.is_cascadable(word):
-                self.output.append(word)
-            return
-        for i in range(len(self.input_set)):
-            self._generate_words_rec_c(word + self.input_set[i], length - 1)
-
-    def _generate_words_rec(self, word: str, length: int) -> None:
-        self.pbar.update(1)
-        if length == 0:
-            self.output.append(word)
-            return
-        for i in range(len(self.input_set)):
-            self._generate_words_rec(word + self.input_set[i], length - 1)
-
-    def generate_words_shorter_than(self) -> List[str]:
-        for i in range(self.length):
-            self._generate_words_rec("", i + 1)
-            self._remove_unnecessary(i + 1)
-        return self.output
 
     def _remove_unnecessary(self, length: int = 0) -> None:
         if length == 1:
@@ -65,24 +38,45 @@ class WordGenerator:
             self.output = []
         return words
 
-    def add_layer(self, words: List[str]) -> List[str]:
-        output = []
-        for word in words:
-            for g in self.input_set:
-                output.append(word + g)
-        return output
+    def generate_words(self, processes=None, chunk_size=1024):
+        self.pbar.update(1)
+        return permutations(self.length, self.input_set, processes, chunk_size)
+
+
+def permutations(length, input_set, processes=None, chunk_size=1024):
+    results = []
+    with multiprocessing.Pool(processes) as workers:
+        perms = []
+        for perm in tqdm(product(input_set, repeat=length)):
+            perms.append("".join(perm))
+            if len(perms) == chunk_size:
+                result = workers.map(process, perms)
+                results.append(list(filter(None, result)))
+                perms = []
+    return list(chain.from_iterable(results))
+
+
+def process(perm):
+    cascader = Cascader()
+    if not cascader.is_cascadable(perm):
+        return perm
+    else:
+        return None
 
 
 if __name__ == '__main__':
-    start_time = time.time()
+    depth = 10
+#   start_time = time.time()
     c = Cascader()
-    w = WordGenerator(['H', 'T', 'R', 'I', 'X', 'Y', 'Z'], 7, cascader=c)
-    words = w.generate_words()
-    print(len(words))
-    c.rules.write_rules()
-    print("--- %s seconds ---" % (time.time() - start_time))
-    print("with truncating:\t" + str(sys.getsizeof(words)/1000.0))
+    w = WordGenerator(['H', 'T', 'S'], depth, cascader=c)
+#   words = w.generate_words()
+#   print(len(words))
+#   #c.rules.write_rules()
+#   print("--- %s seconds ---" % (time.time() - start_time))
 
-    w = WordGenerator(['H', 'T', 'R', 'I', 'X', 'Y', 'Z'], 7)
-    words = w.generate_words()
-    print("without truncating:\t" + str(sys.getsizeof(words)/1000.0))
+    w.output = []
+
+    start_time = time.time()
+    words = w.generate_words(chunk_size=500)
+    print(len(words))
+    print("--- %s seconds ---" % (time.time() - start_time))

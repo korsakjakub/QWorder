@@ -3,7 +3,7 @@ from distutils.core import setup
 setup(
     name='qworder',
     packages=['qworder'],  # Chose the same as "name"
-    version='0.5',
+    version='0.6',
     license='gpl-3.0',
     description='QWorder simplifies strings representing sequences of quantum gates',
     author='Jakub Korsak',
