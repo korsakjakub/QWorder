@@ -1,1 +1,2 @@
-PATH = "existing_rules.txt"
+class Config:
+    PATH = "existing_rules.txt"
