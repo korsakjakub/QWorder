@@ -1,7 +1,6 @@
 import unittest
 
-from cascading_rules import Cascader
-from rules import Word
+from qworder.cascading_rules import Cascader
 
 
 class TestCascader(unittest.TestCase):

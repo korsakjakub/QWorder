@@ -1,6 +1,8 @@
 import unittest
 
-from word_generator import WordGenerator
+from qworder.cascading_rules import Cascader
+
+from qworder.word_generator import WordGenerator
 
 
 class GenerateWordsTest(unittest.TestCase):
@@ -21,21 +23,13 @@ class GenerateWordsTest(unittest.TestCase):
         g = WordGenerator(words, k).generate_words()
         self.assertEqual(set(want), set(g))
 
-    def test_generate_words_shorter_than(self) -> None:
-        gates = ['a', 'n']
-        k = 2
-        want = ['n', 'na', 'a', 'an']
-
-        generator = WordGenerator(gates, k)
-        got = generator.generate_words_shorter_than()
-        self.assertEqual(set(want), set(got))
-
-    def test_add_layer(self) -> None:
-        wg = WordGenerator(['a', 'b'], 1)
-        words = wg.generate_words_shorter_than()
-        got = wg.add_layer(words)
-        want = ['aa', 'ab', 'ba', 'bb']
-        self.assertEqual(set(got), set(want))
+    def test_generating_with_chunks(self) -> None:
+        depth = 5
+        c = Cascader()
+        w = WordGenerator(['H', 'T', 'S'], depth, cascader=c)
+        w.output = []
+        words = w.generate_words(chunk_size=100)
+        self.assertEqual(len(words), 35)
 
 
 if __name__ == '__main__':

@@ -1,13 +1,13 @@
 import csv
 import os
 
-import config
+from qworder.config import Config
 
 
 class Rules(dict):
 
     def __init__(self, rules_path: str = ""):
-        self._rules_path = rules_path if rules_path else config.PATH
+        self._rules_path = rules_path if rules_path else Config.PATH
         super().__init__(self._load_existing_rules())
 
     def rules(self):
